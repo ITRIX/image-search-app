@@ -1,0 +1,13 @@
+<form>
+  <!--search box -->
+  <div class="has-search">
+      <span class="fa fa-search form-control-feedback"></span>
+      <input type="text"
+        name="query"
+        class="form-control" 
+        placeholder="Search"
+        autocomplete="off"
+        [(ngModel)]="query"
+        (ngModelChange)="search($event)">
+  </div>
+</form>

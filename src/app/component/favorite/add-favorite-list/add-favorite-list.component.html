@@ -1,0 +1,45 @@
+<div class="modal-header">
+    <h4 class="modal-title pull-left">Add to Favorite</h4>
+    <button type="button" class="close pull-right" aria-label="Close" (click)="bsModalRef.hide()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+<div class="modal-body">
+    <form [formGroup]="addFavForm">
+        <div class="form-group row">
+          <label for="inputSelectFav" class="col-sm-3 col-form-label">Your list</label>
+          <div class="col-sm-9">
+              <select class="form-control" id="inputSelectFav" formControlName="favImageList" (change)="changeFavListSelection($event)">
+                  <option *ngFor="let item of favList" [value]="item">{{item}}</option>
+              </select>
+          </div>
+        </div>
+        <div class="form-group row" *ngIf="showAddNewListInput">
+          <label for="inputnewListName" class="col-sm-3 col-form-label">Create new</label>
+          <div class="col-sm-9">
+            <input  type="text"
+                    class="form-control" 
+                    id="inputnewListName" 
+                    placeholder="Enter list name" 
+                    [ngClass]="{'input-error': (newImageListNameControl?.dirty || newImageListNameControl?.touched) && newImageListNameControl?.errors?.required || favDuplicateListName}"
+                    formControlName="newImageListName">
+                    <div class="input-text-error" *ngIf="(newImageListNameControl?.dirty || newImageListNameControl?.touched) && newImageListNameControl.errors?.required">Required.</div>
+                    <div class="input-text-error" *ngIf="favDuplicateListName">Name already exists.</div>
+          </div>
+        </div>
+        <div class="form-group row" *ngIf="showAddNewListInput">
+            <label for="newImageListNameDesc" class="col-sm-3 col-form-label">Description</label>
+            <div class="col-sm-9">
+                <textarea class="form-control" 
+                  id="newImageListNameDesc"
+                  formControlName="newImageListNameDesc"
+                  rows="2">
+                </textarea>
+            </div>
+          </div>
+    </form>
+</div>
+<div class="modal-footer">
+  <button type="submit" class="btn btn-success" (click)="onSubmit()" [disabled]="addFavForm.invalid">Save</button>
+  <button type="button" class="btn btn-secondary" (click)="cancel()">Close</button>
+</div>
