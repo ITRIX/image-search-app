@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { FavoriteService } from './favorite.service';
 import { FavoriteList } from '../models/FavoriteList.model'
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 import { EditFavoriteListComponent } from './edit-favorite-list/edit-favorite-list.component'
+import { Store, select } from '@ngrx/store';
+import * as  FavoriteActions  from  '../../actions/favorite.actions';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-favorite',
@@ -12,11 +14,12 @@ import { EditFavoriteListComponent } from './edit-favorite-list/edit-favorite-li
 export class FavoriteComponent implements OnInit {
   favImageSet: any[];
   bsModalRef: BsModalRef;
+  imagesStoreSet: Observable<FavoriteList[]>;
 
-  constructor(private favoriteService: FavoriteService, private modalService: BsModalService) { }
+  constructor(private modalService: BsModalService, private store: Store<{ favorite: FavoriteList[] }>) { }
 
   ngOnInit() {
-    this.favImageSet = this.favoriteService.getFavList();
+    this.imagesStoreSet = this.store.pipe(select('favorite'));
   }
 
   /**
@@ -43,5 +46,5 @@ export class FavoriteComponent implements OnInit {
     const initialState = {'selectedImage': image, 'selectedIndex': index};
     this.bsModalRef = this.modalService.show(EditFavoriteListComponent, {initialState});
   }
-
+  
 }

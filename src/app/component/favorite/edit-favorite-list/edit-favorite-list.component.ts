@@ -2,8 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Validators } from '@angular/forms';
-import { FavoriteService } from '../favorite.service';
 import { FavoriteList } from '../../models/FavoriteList.model'
+import { Store, select } from '@ngrx/store';
+import * as  FavoriteActions  from  '../../../actions/favorite.actions';
+import { Observable } from 'rxjs';
+import * as fromFavoriteReducer from '../../../reducers/favorite.reducer';
 
 @Component({
   selector: 'app-edit-favorite-list',
@@ -16,10 +19,12 @@ export class EditFavoriteListComponent implements OnInit {
   selectedIndex: number;
   favList: any[];
   favDuplicateListName: boolean = false;
-  constructor(public bsModalRef: BsModalRef, private favoriteService: FavoriteService) { }
+  constructor(public bsModalRef: BsModalRef, private store: Store<{ favorite: FavoriteList[] }>) { }
 
   ngOnInit() {
-    this.favList = this.favoriteService.getFavListNames();
+    this.store.select(fromFavoriteReducer.getFavListNames).subscribe((data) => {
+      this.favList = JSON.parse(JSON.stringify(data));
+    })
     this.editFavForm  = new FormGroup({
       newImageListName: new FormControl(this.selectedImage['name'],Validators.required),
       newImageListNameDesc: new FormControl(this.selectedImage['desc'])
@@ -56,11 +61,12 @@ export class EditFavoriteListComponent implements OnInit {
     }
 
     if(this.newImageListNameControl.value === this.selectedImage['name']) {
-      this.favoriteService.updateListNameDescByID(payload, this.selectedIndex);
+      this.store.dispatch(new FavoriteActions.UpdateListNameDescByID(payload, this.selectedIndex));
       this.bsModalRef.hide();
     } else {
       if(this.favList.indexOf(payload.name) === -1) {
-        this.favoriteService.updateListNameDescByID(payload, this.selectedIndex);
+        this.store.dispatch(new FavoriteActions.UpdateListNameDescByID(payload, this.selectedIndex));
+        fromFavoriteReducer.getFavListNames.release();
         this.bsModalRef.hide();
       } else {
         this.favDuplicateListName = true;

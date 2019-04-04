@@ -2,8 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Validators } from '@angular/forms';
-import { FavoriteService } from '../favorite.service';
 import { FavoriteList } from '../../models/FavoriteList.model'
+import { Store, select } from '@ngrx/store';
+import * as  FavoriteActions  from  '../../../actions/favorite.actions';
+import { Observable } from 'rxjs';
+
+import * as fromFavoriteReducer from '../../../reducers/favorite.reducer';
 
 @Component({
   selector: 'app-add-favorite-list',
@@ -17,13 +21,14 @@ export class AddFavoriteListComponent implements OnInit {
   selectedListIndex: number;
   showAddNewListInput: boolean = true;
   favDuplicateListName: boolean = false;
-  constructor(public bsModalRef: BsModalRef, private favoriteService: FavoriteService) {
-  }
+  constructor(public bsModalRef: BsModalRef, private store: Store<{ favorite: FavoriteList[] }>) { }
 
   ngOnInit() {
     this.selectedListIndex = 0
-    this.favList = this.favoriteService.getFavListNames();
-    this.favList.unshift('Create new List');
+    this.store.select(fromFavoriteReducer.getFavListNames).subscribe((data) => {
+      this.favList = JSON.parse(JSON.stringify(data));
+      this.favList.unshift('Create new List');
+    })
     this.addFavForm  = new FormGroup({
       favImageList: new FormControl(this.favList[0]),
       newImageListName: new FormControl('',Validators.required),
@@ -72,18 +77,17 @@ export class AddFavoriteListComponent implements OnInit {
         'downloadUrl': this.selectedImage['links']['download']
       }]
     }
-    if(this.selectedListIndex === 0){
+    if(this.selectedListIndex === 0) {
       payload.name = this.newImageListNameControl.value;
       payload.desc = this.newImageListNameDescControl.value;
-      var ddd = this.favList.indexOf(payload.name);
       if(this.favList.indexOf(payload.name) === -1) {
-        this.favoriteService.addNewFavList(payload);
+        this.store.dispatch(new FavoriteActions.AddFavoriteList(payload));
         this.bsModalRef.hide();
       } else{
         this.favDuplicateListName = true;
       }
     } else {
-      this.favoriteService.addLinksToList(payload.links[0], this.selectedListIndex-1);
+      this.store.dispatch(new FavoriteActions.AddLinkToFavoriteList(payload.links[0], this.selectedListIndex - 1))
       this.bsModalRef.hide();
     }
   }

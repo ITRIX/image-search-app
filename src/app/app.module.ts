@@ -15,6 +15,8 @@ import { ModalModule } from 'ngx-bootstrap/modal';
 import { AddFavoriteListComponent } from './component/favorite/add-favorite-list/add-favorite-list.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { EditFavoriteListComponent } from './component/favorite/edit-favorite-list/edit-favorite-list.component';
+import { StoreModule } from '@ngrx/store';
+import { reducer } from './reducers/favorite.reducer';
 
 @NgModule({
   declarations: [
@@ -35,7 +37,8 @@ import { EditFavoriteListComponent } from './component/favorite/edit-favorite-li
     InfiniteScrollModule,
     PopoverModule.forRoot(),
     ModalModule.forRoot(),
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    StoreModule.forRoot({ favorite: reducer })
   ],
   providers: [],
   bootstrap: [AppComponent],
